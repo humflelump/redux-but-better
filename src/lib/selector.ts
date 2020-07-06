@@ -78,7 +78,7 @@ export function useSelector<T>(selector: Selector<T>) {
 
   React.useEffect(() => {
     const listener = () => {
-      if (value !== selector()) setValue(selector());
+      setValue(selector());
     };
     selector.addChangeListener(listener);
     return () => {

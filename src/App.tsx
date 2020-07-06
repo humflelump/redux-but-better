@@ -86,8 +86,6 @@ const App4 = React.memo(() => {
   const [text, setText] = useAtom(a);
   const loading = useSelector(aL as any);
   const double = useSelector(asyncSelector as any);
-  console.log("render");
-  console.log({ text, loading, double });
   return (
     <div>
       <button onClick={() => setText(text + "!")}>

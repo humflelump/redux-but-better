@@ -309,10 +309,15 @@ export function createAsyncSelector(params) {
     id: `__valueAtom__${id}`,
     data: undefined as any
   });
+  console.log({ asyncSelectorAtom });
   const isLoadingSelector = createSelector({
     id: `__isLoadingSelectorSelector__${id}`,
     inputs: [asyncSelectorAtom],
-    func: d => (d ? d.isWaiting : false)
+    func: d => {
+      const bool = d ? d.isWaiting : false;
+      console.log({ bool });
+      return bool;
+    }
   });
   const errorSelector = createSelector({
     id: `__errorSelectorSelector__${id}`,
@@ -338,7 +343,10 @@ export function createAsyncSelector(params) {
     {
       async: asyncFunc,
       throttle,
-      onResolve: () => asyncSelectorAtom.set(asyncSelector()),
+      onResolve: () => {
+        console.log("wowow", asyncSelector());
+        asyncSelectorAtom.set(asyncSelector());
+      },
       onReject: () => asyncSelectorAtom.set(asyncSelector()),
       onCancel: promise => {
         promise.state.cancelled = true;
