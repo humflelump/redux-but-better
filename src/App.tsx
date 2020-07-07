@@ -1,13 +1,14 @@
 import React from "react";
 import logo from "./logo.svg";
 import "./App.css";
-import { createMolecule } from "./lib/molecule";
-import { useAtom, atom } from "./lib/atom";
-import { createSelector, useSelector } from "./lib/selector";
-import { createAction } from "./lib/createAction";
-import { createAsyncAction } from "./lib/createAsyncAction";
-import { createAsyncSelector } from "./lib/createAsyncSelector";
-import { AtomOrSelector } from "./lib/atom-or-selector";
+import { createMolecule } from "./lib/functions/createMolecule";
+import { Selector } from "./lib/node/Selector";
+import { createAction } from "./lib/functions/createAction";
+import { useAtom } from "./lib/hooks/useAtom";
+import { useSelector } from "./lib/hooks/useSelector";
+import { createAsyncAction } from "./lib/functions/createAsyncAction";
+import { Atom } from "./lib/node/Atom";
+import { createAsyncSelector } from "./lib/functions/createAsyncSelector";
 
 const mol = createMolecule({
   key: "slice",
@@ -17,7 +18,7 @@ const mol = createMolecule({
   }
 });
 
-const doubled = createSelector({
+const doubled = new Selector({
   id: "ay",
   inputs: [mol.hey],
   func: s => s + s
@@ -67,7 +68,7 @@ const App3 = () => {
   );
 };
 
-const a = atom({
+const a = new Atom({
   id: "345345435",
   data: "wow"
 });
@@ -84,6 +85,7 @@ const [asyncSelector, aL, err, forceUpdate] = createAsyncSelector({
 
 const App4 = React.memo(() => {
   const [text, setText] = useAtom(a);
+  useSelector(doubled);
   const loading = useSelector(aL as any);
   const double = useSelector(asyncSelector as any);
   return (
@@ -97,14 +99,26 @@ const App4 = React.memo(() => {
   );
 });
 
+const Toggle = ({ children }) => {
+  const [open, setOpen] = React.useState(true);
+  return (
+    <div>
+      <button onClick={() => setOpen(!open)}>close</button>
+      {open ? children : null}
+    </div>
+  );
+};
+
 function App() {
   return (
     <div className="App">
-      <App1 />
-      <App2 />
-      <button onClick={reset}>reset</button>
-      <App3 />
-      <App4 />
+      <Toggle>
+        <App1 />
+        <App2 />
+        <button onClick={reset}>reset</button>
+        <App3 />
+        <App4 />
+      </Toggle>
     </div>
   );
 }

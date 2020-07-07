@@ -1,19 +1,8 @@
-import { atom } from "./atom";
-import { createSelector, Selector } from "./selector";
-import { createId } from "./createId";
-import { AtomOrSelector } from "./atom-or-selector";
-
-export type AsyncActionState = {
-  id: string;
-  cancelled: boolean;
-} & { [key: string]: any };
-
-export type AsyncActionFunction = {
-  (): AsyncActionState;
-  getId(): string;
-};
-
-export type Setter<Input> = (val: Input) => void;
+import { Selector } from "../node/Selector";
+import { AtomOrSelector } from "../node/types";
+import { Atom } from "../node/Atom";
+import { createId } from "../helpers/createId";
+import { AsyncActionState, AsyncActionFunction, Setter } from "./types";
 
 export function createAsyncAction(params: {
   id: string;
@@ -193,22 +182,22 @@ export function createAsyncAction<S1, S2, S3, R1, R2, R3>(params: {
 
 export function createAsyncAction(params) {
   const { id, inputs, atoms, func } = params;
-  const isLoadingAtom = atom({
+  const isLoadingAtom = new Atom({
     id: `__isLoadingActionAtom__${id}`,
     data: false
   });
-  const errorAtom = atom({
+  const errorAtom = new Atom({
     id: `__errorActionAtom__${id}`,
     data: undefined
   });
-  const isLoadingSelector = createSelector({
+  const isLoadingSelector = new Selector({
     id: `__isLoadingActionSelector__${id}`,
-    inputs: [isLoadingAtom],
+    inputs: [isLoadingAtom as any],
     func: d => d
   });
-  const errorSelector = createSelector({
+  const errorSelector = new Selector({
     id: `__errorActionSelector__${id}`,
-    inputs: [errorAtom],
+    inputs: [errorAtom as any],
     func: d => d
   });
   // TODO: figure out a way to batch sets
@@ -221,9 +210,8 @@ export function createAsyncAction(params) {
     const id = createId();
     mostRecentAction = id;
     actionStates[id] = { id, cancelled: false };
-    const vals = (inputs || []).map(input => input());
+    const vals = (inputs || []).map(input => input.get());
     const finish = (error: any) => {
-      console.log({ id, mostRecentAction });
       if (id === mostRecentAction) {
         isLoadingAtom.set(false);
         if (error !== undefined) {

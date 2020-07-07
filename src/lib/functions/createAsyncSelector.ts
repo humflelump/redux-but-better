@@ -1,17 +1,13 @@
-import { atom } from "./atom";
-import { createSelector } from "./selector";
 import createAsyncSelector_ from "async-selector";
-import { AtomOrSelector } from "./atom-or-selector";
-
-export type PromiseState = {
-  id: string;
-  cancelled: boolean;
-};
+import { AtomOrSelector } from "../node/types";
+import { Atom } from "../node/Atom";
+import { Selector } from "../node/Selector";
+import { AsyncSelectorPromiseState } from "./types";
 
 export function createAsyncSelector<ReturnType, DefaultValue>(params: {
   id: string;
   inputs?: [];
-  func: (state: PromiseState) => Promise<ReturnType>;
+  func: (state: AsyncSelectorPromiseState) => Promise<ReturnType>;
   defaultValue: DefaultValue;
   throttle?: (f: () => void) => () => void;
 }): [
@@ -24,7 +20,7 @@ export function createAsyncSelector<ReturnType, DefaultValue>(params: {
 export function createAsyncSelector<S1, ReturnType, DefaultValue>(params: {
   id: string;
   inputs: [AtomOrSelector<S1>];
-  func: (val1: S1, state: PromiseState) => Promise<ReturnType>;
+  func: (val1: S1, state: AsyncSelectorPromiseState) => Promise<ReturnType>;
   defaultValue: DefaultValue;
   throttle?: (f: () => void) => () => void;
 }): [
@@ -37,7 +33,11 @@ export function createAsyncSelector<S1, ReturnType, DefaultValue>(params: {
 export function createAsyncSelector<S1, S2, ReturnType, DefaultValue>(params: {
   id: string;
   inputs: [AtomOrSelector<S1>, AtomOrSelector<S2>];
-  func: (val1: S1, val2: S2, state: PromiseState) => Promise<ReturnType>;
+  func: (
+    val1: S1,
+    val2: S2,
+    state: AsyncSelectorPromiseState
+  ) => Promise<ReturnType>;
   defaultValue: DefaultValue;
   throttle?: (f: () => void) => () => void;
 }): [
@@ -60,7 +60,7 @@ export function createAsyncSelector<
     val1: S1,
     val2: S2,
     val3: S3,
-    state: PromiseState
+    state: AsyncSelectorPromiseState
   ) => Promise<ReturnType>;
   defaultValue: DefaultValue;
   throttle?: (f: () => void) => () => void;
@@ -91,7 +91,7 @@ export function createAsyncSelector<
     val2: S2,
     val3: S3,
     val4: S4,
-    state: PromiseState
+    state: AsyncSelectorPromiseState
   ) => Promise<ReturnType>;
   defaultValue: DefaultValue;
   throttle?: (f: () => void) => () => void;
@@ -125,7 +125,7 @@ export function createAsyncSelector<
     val3: S3,
     val4: S4,
     val5: S5,
-    state: PromiseState
+    state: AsyncSelectorPromiseState
   ) => Promise<ReturnType>;
   defaultValue: DefaultValue;
   throttle?: (f: () => void) => () => void;
@@ -162,7 +162,7 @@ export function createAsyncSelector<
     val4: S4,
     val5: S5,
     val6: S6,
-    state: PromiseState
+    state: AsyncSelectorPromiseState
   ) => Promise<ReturnType>;
   defaultValue: DefaultValue;
   throttle?: (f: () => void) => () => void;
@@ -202,7 +202,7 @@ export function createAsyncSelector<
     val5: S5,
     val6: S6,
     val7: S7,
-    state: PromiseState
+    state: AsyncSelectorPromiseState
   ) => Promise<ReturnType>;
   defaultValue: DefaultValue;
   throttle?: (f: () => void) => () => void;
@@ -245,7 +245,7 @@ export function createAsyncSelector<
     val6: S6,
     val7: S7,
     val8: S8,
-    state: PromiseState
+    state: AsyncSelectorPromiseState
   ) => Promise<ReturnType>;
   defaultValue: DefaultValue;
   throttle?: (f: () => void) => () => void;
@@ -291,7 +291,7 @@ export function createAsyncSelector<
     val7: S7,
     val8: S8,
     val9: S9,
-    state: PromiseState
+    state: AsyncSelectorPromiseState
   ) => Promise<ReturnType>;
   defaultValue: DefaultValue;
   throttle?: (f: () => void) => () => void;
@@ -305,21 +305,19 @@ export function createAsyncSelector<
 export function createAsyncSelector(params) {
   const { id, func, inputs, defaultValue, throttle } = params;
 
-  const asyncSelectorAtom = atom({
+  const asyncSelectorAtom = new Atom({
     id: `__valueAtom__${id}`,
     data: undefined as any
   });
-  console.log({ asyncSelectorAtom });
-  const isLoadingSelector = createSelector({
+
+  const isLoadingSelector = new Selector({
     id: `__isLoadingSelectorSelector__${id}`,
     inputs: [asyncSelectorAtom],
     func: d => {
-      const bool = d ? d.isWaiting : false;
-      console.log({ bool });
-      return bool;
+      return d ? d.isWaiting : false;
     }
   });
-  const errorSelector = createSelector({
+  const errorSelector = new Selector({
     id: `__errorSelectorSelector__${id}`,
     inputs: [asyncSelectorAtom],
     func: d => (d.isRejected ? d.value : undefined)
@@ -335,7 +333,7 @@ export function createAsyncSelector(params) {
         .then(res)
         .catch(rej);
     });
-    promise.state = state;
+    promise._ = state;
     return promise;
   };
 
@@ -344,18 +342,17 @@ export function createAsyncSelector(params) {
       async: asyncFunc,
       throttle,
       onResolve: () => {
-        console.log("wowow", asyncSelector());
         asyncSelectorAtom.set(asyncSelector());
       },
       onReject: () => asyncSelectorAtom.set(asyncSelector()),
       onCancel: promise => {
-        promise.state.cancelled = true;
+        promise._.cancelled = true;
       }
     },
-    inputs
+    inputs.map(d => () => d.get())
   );
 
-  const selector = createSelector({
+  const selector = new Selector({
     id: `__asyncSelector__${id}`,
     inputs: [asyncSelectorAtom, ...inputs] as any,
     func: d => {

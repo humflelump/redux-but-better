@@ -1,12 +1,6 @@
-import { getListenersToCall, Atom } from "./atom";
-import { AtomOrSelector } from "./atom-or-selector";
-
-export type ActionFunction = {
-  (): void;
-  getId(): string;
-};
-
-export type Setter<Input> = (val: Input) => void;
+import { AtomOrSelector, Listener } from "../node/types";
+import { Atom } from "../node/Atom";
+import { ActionFunction, Setter } from "./types";
 
 export function createAction(params: {
   id: string;
@@ -143,18 +137,35 @@ export function createAction<S1, S2, S3, R1, R2, R3>(params: {
     val3: R3
   ) => void;
 }): ActionFunction;
-export function createAction(params) {
+
+export function createAction(
+  params:
+    | any
+    | {
+        id: string;
+        inputs: AtomOrSelector<any>[];
+        atoms: Atom<any>[];
+        func: Function;
+      }
+) {
   const { id, inputs, atoms, func } = params;
   const setters = (atoms || []).map(atom => {
     return val => atom.set(val, false);
   });
 
   const action = () => {
-    const vals = (inputs || []).map(input => input());
+    const vals = (inputs || []).map(input => input.get());
     func(...vals, ...setters);
     // TODO: only call listeners if the atoms was changed
-    const listeners = getListenersToCall(atoms);
-    listeners.forEach(listener => listener());
+    const visited = new Set<Listener>();
+
+    atoms.forEach(atom => {
+      atom.getListeners().forEach(listener => {
+        if (visited.has(listener)) return;
+        visited.add(listener);
+        listener();
+      });
+    });
   };
   action.getId = () => id;
   return action;

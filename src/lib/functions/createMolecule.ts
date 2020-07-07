@@ -1,4 +1,5 @@
-import { atom, Atomify } from "./atom";
+import { Atomify } from "./types";
+import { Atom } from "../node/Atom";
 
 export function createMolecule<Slice>(params: {
   slice: Slice;
@@ -10,7 +11,7 @@ export function createMolecule(params: any) {
   const result = {} as any;
   for (const objkey in slice) {
     const atomKey = `${key}.${objkey}`;
-    result[objkey] = atom({
+    result[objkey] = new Atom({
       data: slice[objkey],
       id: atomKey
     });
