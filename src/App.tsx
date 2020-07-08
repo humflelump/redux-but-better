@@ -9,7 +9,25 @@ import { useSelector } from "./lib/hooks/useSelector";
 import { createAsyncAction } from "./lib/functions/createAsyncAction";
 import { Atom } from "./lib/node/Atom";
 import { createAsyncSelector } from "./lib/functions/createAsyncSelector";
+import { useMolecule } from "./lib/hooks/useMolecule";
+import { useCell } from "./lib/hooks/useCell";
+import { DynamicSelector } from "./lib/node/DynamicSelector";
+import { createSubscription } from "./lib/functions/createSubscription";
 
+console.log(
+  createSubscription,
+  DynamicSelector,
+  useCell,
+  useMolecule,
+  createAsyncSelector,
+  Atom,
+  createAsyncAction,
+  useSelector,
+  useAtom,
+  createAction,
+  Selector,
+  createMolecule
+);
 const mol = createMolecule({
   key: "slice",
   slice: {
@@ -70,7 +88,8 @@ const App3 = () => {
 
 const a = new Atom({
   id: "345345435",
-  data: "wow"
+  data: "wow",
+  listenersChanged: console.log
 });
 
 const [asyncSelector, aL, err, forceUpdate] = createAsyncSelector({
@@ -109,6 +128,114 @@ const Toggle = ({ children }) => {
   );
 };
 
+var ar = len => {
+  var L = [] as any;
+  for (let i = 1; i < len + 1; i++) {
+    L.push(i);
+  }
+  return L;
+};
+
+const atoms = ar(5).map(
+  i =>
+    new Atom({
+      id: String(i) + "__",
+      data: i
+    })
+);
+
+const Item = (props: { index: number }) => {
+  const { index } = props;
+  const [val, setVal] = useAtom(atoms[index]);
+  return <div onClick={() => setVal(val + 1)}>{val}</div>;
+};
+
+const App6 = React.memo(() => {
+  return (
+    <div>
+      {atoms.map((a, i) => (
+        <Item key={i} index={i} />
+      ))}
+    </div>
+  );
+});
+
+const ChildComp = (props: { num: number }) => {
+  const numAtom = useMolecule(props).num;
+  const select = useCell(() => {
+    return new Selector({
+      id: "wowow",
+      inputs: [numAtom],
+      func: num => num * 10
+    });
+  });
+  return (
+    <div>
+      {numAtom.get()}, {select.get()}
+    </div>
+  );
+};
+
+const ParentComp = () => {
+  const [num, setNum] = React.useState(1);
+  return (
+    <div>
+      <button onClick={() => setNum(num + 1)}>increment</button>
+      <ChildComp num={num} />
+    </div>
+  );
+};
+
+const a1 = new Atom({
+  id: "a1",
+  data: "a1"
+});
+
+const a2 = new Atom({
+  id: "a2",
+  data: "a2"
+});
+
+const switch_ = new Atom({
+  id: "SWITCH",
+  data: true
+});
+
+const dynSel = new DynamicSelector({
+  func: get => {
+    if (get(switch_) === true) {
+      return get(a1);
+    } else {
+      return get(a2);
+    }
+  }
+});
+
+const App7 = React.memo(() => {
+  const val = useSelector(dynSel);
+  const [switchVal, setSwitch] = useAtom(switch_);
+  return (
+    <div>
+      <button onClick={() => setSwitch(!switchVal)}>toggle</button>
+      <div>{val}</div>
+    </div>
+  );
+});
+
+const [sub] = createSubscription({
+  id: "hththt",
+  data: "mydata",
+  inputs: [dynSel],
+  onInputsChanged: (...vals) => console.log("onInputsChanged", vals),
+  onSubscriptionsChanged: (...vals) =>
+    console.log("onSubscriptionsChanged", vals)
+});
+
+const App8 = React.memo(() => {
+  const data = useSelector(sub);
+  return <div>sub: {data}</div>;
+});
+
 function App() {
   return (
     <div className="App">
@@ -118,6 +245,10 @@ function App() {
         <button onClick={reset}>reset</button>
         <App3 />
         <App4 />
+        <App6 />
+        <ParentComp />
+        <App7 />
+        <App8 />
       </Toggle>
     </div>
   );

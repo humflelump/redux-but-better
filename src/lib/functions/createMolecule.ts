@@ -1,5 +1,6 @@
 import { Atomify } from "./types";
 import { Atom } from "../node/Atom";
+import { mapValues } from "../helpers/map-values";
 
 export function createMolecule<Slice>(params: {
   slice: Slice;
@@ -8,13 +9,10 @@ export function createMolecule<Slice>(params: {
 
 export function createMolecule(params: any) {
   const { key, slice } = params;
-  const result = {} as any;
-  for (const objkey in slice) {
-    const atomKey = `${key}.${objkey}`;
-    result[objkey] = new Atom({
-      data: slice[objkey],
-      id: atomKey
+  return mapValues(slice, (val, k) => {
+    return new Atom({
+      data: val,
+      id: `${key}.${k}`
     });
-  }
-  return result;
+  });
 }

@@ -1,11 +1,18 @@
 import { ParentNode } from "./ParentNode";
+import { store } from "../functions/createStore";
+import { ListenerListener } from "./types";
 
 export class Atom<T> extends ParentNode<any> {
   data: T;
 
-  constructor(params: { data: T; id: string }) {
+  constructor(params: {
+    data: T;
+    id: string;
+    listenersChanged?: ListenerListener;
+  }) {
     super(params);
     this.data = params.data;
+    store.addAtom(this);
   }
 
   get() {

@@ -11,9 +11,10 @@ function genType(inputs) {
         return `
   // prettier-ignore
   public constructor(params: {
-    id: string;
-    inputs: [${ar(inputs).map(i => `AtomOrSelector<R${i}>`).join(', ')}];
+    id?: string;
+    inputs${inputs.length > 0 ? '' : '?'}: [${ar(inputs).map(i => `AtomOrSelector<R${i}>`).join(', ')}];
     func: (${ar(inputs).map(i => `val${i}: R${i}`).join(', ')}) => ReturnType;
+    listenersChanged?: ListenerListener;
   });
     `
     }

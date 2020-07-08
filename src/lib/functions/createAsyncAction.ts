@@ -236,14 +236,3 @@ export function createAsyncAction(params) {
   action.getId = () => id;
   return [action, isLoadingSelector, errorSelector];
 }
-
-// const [action, isLoading, getError, state] = createAsyncAction({
-//   id: "345345345",
-//   inputs: [selector1],
-//   atoms: [atom1],
-//   func: async (set1, val1, cancelled) => {
-//       const result1 = await f();
-//       if (state.cancelled === true) return
-//       set1(result1);
-//   }
-// });
