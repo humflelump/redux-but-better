@@ -27,16 +27,3 @@ export function findAndReplace(
     return object;
   }
 }
-
-export function atomDataToJSON(obj) {
-  const res = findAndReplace(
-    obj,
-    o => o instanceof Atom,
-    (a: any) => {
-      const d = a.toJSON();
-      d.data = atomDataToJSON(d.data);
-      return d;
-    }
-  );
-  return res;
-}

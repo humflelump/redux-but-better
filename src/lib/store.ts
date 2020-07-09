@@ -1,6 +1,6 @@
 import { Atom } from "./core/Atom";
 import { createId } from "./helpers/createId";
-import { atomDataToJSON, findAndReplace } from "./helpers/transform-json";
+import { findAndReplace } from "./helpers/transform-json";
 
 type AtomSubscription = (atom: Atom<any>) => void;
 
@@ -39,18 +39,19 @@ class Store {
     this.subscriptions.atomSet.forEach(f => f(atom, prev));
   }
 
-  public toJSON(filter?: (atom: Atom<any, any>) => boolean) {
-    const filtered = {};
-    if (filter) {
-      const o = this.atoms;
-      for (const key in o) {
-        if (filter(o[key])) {
-          filtered[key] = o[key];
+  public toJSON() {
+    const replace = obj => {
+      const res = findAndReplace(
+        obj,
+        o => o instanceof Atom,
+        (a: any) => {
+          const d = a.toJSON();
+          d.data = replace(d.data);
+          return d;
         }
-      }
-    }
-    const obj = atomDataToJSON(this.atoms);
-    return obj;
+      );
+    };
+    return replace(this.atoms);
   }
 
   public mergeJSON(json: { [id: string]: any }) {
