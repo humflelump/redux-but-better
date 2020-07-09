@@ -105,6 +105,10 @@ export class Selector<
   }
 
   get(): ReturnType {
+    // cache is revoked when a parent atom is set
+    if (this.useCache === true) {
+      return this.cacheVal as ReturnType;
+    }
     const vals: ParentNode<any>[] = super
       .getDependencies()
       .map((d: any) => d.get());
@@ -114,6 +118,7 @@ export class Selector<
       this.cacheInputs = vals;
       return result;
     }
+    this.useCache = true;
     return this.cacheVal as ReturnType;
   }
 }

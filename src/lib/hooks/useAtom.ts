@@ -1,9 +1,9 @@
-import { Atom } from "../node/Atom";
+import { Atom } from "../core/Atom";
 import React from "react";
 
 const _ = [];
 
-export function useAtom<T>(atom: Atom<T>) {
+export function useAtom<T, M>(atom: Atom<T, M>) {
   const [value, setValue] = React.useState(atom.get());
 
   React.useEffect(() => {

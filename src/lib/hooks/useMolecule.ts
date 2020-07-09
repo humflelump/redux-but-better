@@ -1,8 +1,8 @@
 import React from "react";
-import { Atom } from "../node/Atom";
+import { Atom } from "../core/Atom";
 import { createId } from "../helpers/createId";
 import { Atomify } from "../functions/types";
-import { store } from "../functions/createStore";
+import { store } from "../store";
 
 export function useMolecule<Slice>(obj: Slice): Atomify<Slice> {
   const [mol] = React.useState({} as any);

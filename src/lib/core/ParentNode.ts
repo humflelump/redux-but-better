@@ -7,9 +7,10 @@ export class ParentNode<T> {
   public dependents: ParentNode<any>[];
   public dependencies: ParentNode<any>[];
   private listenersChanged: ListenerListener | null;
+  public useCache = false;
 
   constructor(params: {
-    id: string;
+    id?: string;
     inputs?: ParentNode<any>[];
     listenersChanged?: ListenerListener;
   }) {
@@ -19,6 +20,16 @@ export class ParentNode<T> {
     this.listeners = new Set();
     this.dependencies.forEach(input => input.addDependent(this));
     this.listenersChanged = params.listenersChanged || null;
+  }
+
+  public revokeCache() {
+    if (this.useCache === false) {
+      return;
+    }
+    this.useCache = false;
+    for (let i = 0; i < this.dependents.length; i++) {
+      this.dependents[i].revokeCache();
+    }
   }
 
   public disconnect<T>(parent: ParentNode<T>) {

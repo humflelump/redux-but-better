@@ -1,5 +1,5 @@
-import { AtomOrSelector, Listener } from "../node/types";
-import { Atom } from "../node/Atom";
+import { AtomOrSelector, Listener } from "../core/types";
+import { Atom } from "../core/Atom";
 import { ActionFunction, Setter } from "./types";
 
 export function createAction(params: {
@@ -155,7 +155,7 @@ export function createAction(
 
   const action = () => {
     const vals = (inputs || []).map(input => input.get());
-    func(...vals, ...setters);
+    func(...setters, ...vals);
     // TODO: only call listeners if the atoms was changed
     const visited = new Set<Listener>();
 

@@ -1,9 +1,9 @@
 import React from "react";
-import { store } from "../functions/createStore";
+import { store } from "../store";
 
-export function useCell(func) {
+export function useCell<ReturnType>(func: () => ReturnType): ReturnType {
   const [atoms] = React.useState([] as any);
-  const [state] = React.useState({ count: 0, result: null });
+  const [state] = React.useState({ count: 0, result: null as any });
   if (state.count === 0) {
     const unsub = store.subscribeToCreatedAtoms(atom => {
       atoms.push(atom);
@@ -17,5 +17,5 @@ export function useCell(func) {
     };
   }, []);
   state.count += 1;
-  return state.result as any;
+  return state.result as ReturnType;
 }

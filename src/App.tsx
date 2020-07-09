@@ -2,17 +2,20 @@ import React from "react";
 import logo from "./logo.svg";
 import "./App.css";
 import { createMolecule } from "./lib/functions/createMolecule";
-import { Selector } from "./lib/node/Selector";
+import { Selector } from "./lib/core/Selector";
 import { createAction } from "./lib/functions/createAction";
 import { useAtom } from "./lib/hooks/useAtom";
 import { useSelector } from "./lib/hooks/useSelector";
 import { createAsyncAction } from "./lib/functions/createAsyncAction";
-import { Atom } from "./lib/node/Atom";
+import { Atom } from "./lib/core/Atom";
 import { createAsyncSelector } from "./lib/functions/createAsyncSelector";
 import { useMolecule } from "./lib/hooks/useMolecule";
 import { useCell } from "./lib/hooks/useCell";
-import { DynamicSelector } from "./lib/node/DynamicSelector";
+import { DynamicSelector } from "./lib/core/DynamicSelector";
 import { createSubscription } from "./lib/functions/createSubscription";
+import { store } from "./lib/store";
+import { createId } from "./lib/helpers/createId";
+import { findAndReplace } from "./lib/helpers/transform-json";
 
 console.log(
   createSubscription,
@@ -30,6 +33,7 @@ console.log(
 );
 const mol = createMolecule({
   key: "slice",
+  metadata: "myslice",
   slice: {
     hey: "wow",
     yo: "um"
@@ -88,8 +92,7 @@ const App3 = () => {
 
 const a = new Atom({
   id: "345345435",
-  data: "wow",
-  listenersChanged: console.log
+  data: "wow"
 });
 
 const [asyncSelector, aL, err, forceUpdate] = createAsyncSelector({
@@ -182,6 +185,7 @@ const ParentComp = () => {
     <div>
       <button onClick={() => setNum(num + 1)}>increment</button>
       <ChildComp num={num} />
+      <ChildComp num={66} />
     </div>
   );
 };
@@ -200,6 +204,46 @@ const switch_ = new Atom({
   id: "SWITCH",
   data: true
 });
+
+class UndoManager {
+  list = [] as any[];
+  index = 0;
+  shouldAddToList = true;
+
+  constructor() {
+    store.subscribeToChangedAtoms((atom, prev) => {
+      if (this.shouldAddToList === true) {
+        if (atom.metadata !== "myslice") return;
+        if (this.list.length === 0) {
+          this.list.push([atom, prev]);
+        }
+        this.list.push([atom, atom.get()]);
+        this.index = this.list.length - 1;
+      }
+    });
+  }
+
+  jump(index) {
+    this.shouldAddToList = false;
+    this.list[index][0].set(this.list[index][1]);
+    this.shouldAddToList = true;
+  }
+
+  undo() {
+    if (this.index > 0) {
+      this.index -= 1;
+      this.jump(this.index);
+    }
+  }
+
+  redo() {
+    if (this.index < this.list.length - 1) {
+      this.index += 1;
+      this.jump(this.index);
+    }
+  }
+}
+const undoManager = new UndoManager();
 
 const dynSel = new DynamicSelector({
   func: get => {
@@ -225,16 +269,72 @@ const App7 = React.memo(() => {
 const [sub] = createSubscription({
   id: "hththt",
   data: "mydata",
-  inputs: [dynSel],
-  onInputsChanged: (...vals) => console.log("onInputsChanged", vals),
-  onSubscriptionsChanged: (...vals) =>
-    console.log("onSubscriptionsChanged", vals)
+  inputs: [dynSel]
 });
 
 const App8 = React.memo(() => {
   const data = useSelector(sub);
   return <div>sub: {data}</div>;
 });
+
+const App9 = () => {
+  return (
+    <div>
+      <button onClick={() => undoManager.undo()}>Undo</button>
+      <button onClick={() => undoManager.redo()}>Redo</button>
+    </div>
+  );
+};
+
+const atomatom = new Atom({
+  id: "atomatom",
+  data: [] as Atom<number, any>[]
+});
+
+const sum = new DynamicSelector({
+  id: "wowowowooww",
+  func: get => {
+    const atoms = get(atomatom);
+    let s = 0;
+    for (const atom of atoms) {
+      s += get(atom);
+    }
+    return s;
+  }
+});
+
+const addAtom = createAction({
+  id: "addAction",
+  inputs: [atomatom],
+  atoms: [atomatom],
+  func: (setter, atoms) => {
+    const next = new Atom({
+      id: createId(),
+      data: 10
+    });
+    setter([...atoms, next]);
+  }
+});
+
+const ChildBlah = React.memo((props: { atom: Atom<number, any> }) => {
+  const [val, setVal] = useAtom(props.atom);
+  console.log("render", val);
+  return <div onClick={() => setVal(val + 1)}>{val}</div>;
+});
+
+const App10 = () => {
+  const [atoms] = useAtom(atomatom);
+  const total = useSelector(sum);
+  return (
+    <div>
+      <button onClick={addAtom}>New Atom!</button>
+      {atoms.map((atom, index) => {
+        return <ChildBlah atom={atom} key={index} />;
+      })}
+      <div>total: ${total}</div>
+    </div>
+  );
+};
 
 function App() {
   return (
@@ -249,9 +349,15 @@ function App() {
         <ParentComp />
         <App7 />
         <App8 />
+        <App9 />
+        <App10 />
       </Toggle>
     </div>
   );
 }
+
+setTimeout(() => {
+  console.log("rumhmghm", store.toJSON());
+}, 5000);
 
 export default App;

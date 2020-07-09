@@ -1,7 +1,7 @@
 import createAsyncSelector_ from "async-selector";
-import { AtomOrSelector } from "../node/types";
-import { Atom } from "../node/Atom";
-import { Selector } from "../node/Selector";
+import { AtomOrSelector } from "../core/types";
+import { Atom } from "../core/Atom";
+import { Selector } from "../core/Selector";
 import { AsyncSelectorPromiseState } from "./types";
 
 export function createAsyncSelector<ReturnType, DefaultValue>(params: {

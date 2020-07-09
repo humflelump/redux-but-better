@@ -1,6 +1,6 @@
-import { Selector } from "../node/Selector";
-import { AtomOrSelector } from "../node/types";
-import { Atom } from "../node/Atom";
+import { Selector } from "../core/Selector";
+import { AtomOrSelector } from "../core/types";
+import { Atom } from "../core/Atom";
 import { createId } from "../helpers/createId";
 import { AsyncActionState, AsyncActionFunction, Setter } from "./types";
 

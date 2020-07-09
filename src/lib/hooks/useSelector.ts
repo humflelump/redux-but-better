@@ -1,5 +1,5 @@
 import React from "react";
-import { Selector } from "../node/Selector";
+import { Selector } from "../core/Selector";
 
 const _ = [];
 

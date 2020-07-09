@@ -1,6 +1,6 @@
-import { Atom } from "../node/Atom";
-import { Selector } from "../node/Selector";
-import { AtomOrSelector, ListenerListener, Listener } from "../node/types";
+import { Atom } from "../core/Atom";
+import { Selector } from "../core/Selector";
+import { AtomOrSelector, ListenerListener, Listener } from "../core/types";
 
 export function createSubscription<ReturnType>(params: {
   id: string;
@@ -40,7 +40,11 @@ export function createSubscription(params) {
       inputsCache = outputs;
       return atomVal;
     },
-    listenersChanged: (cur, prev) => onSubscriptionsChanged(cur, prev, setter)
+    listenersChanged: (cur, prev) => {
+      if (onSubscriptionsChanged) {
+        onSubscriptionsChanged(cur, prev, setter);
+      }
+    }
   });
 
   return [selector, setter];

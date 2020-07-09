@@ -1,4 +1,4 @@
-import { Atom } from "../node/Atom";
+import { Atom } from "../core/Atom";
 
 export type ActionFunction = {
   (): void;
@@ -22,6 +22,6 @@ export type AsyncActionFunction = {
   getId(): string;
 };
 
-export type Atomify<Object> = {
-  [P in keyof Object]: Atom<Object[P]>;
+export type Atomify<Object, Metadata = { slice: string }> = {
+  [P in keyof Object]: Atom<Object[P], Metadata>;
 };
