@@ -1,29 +1,28 @@
-import { Atom } from "../core/Atom";
 export function findAndReplace(
-  object: any,
+  o: any,
   shouldMap: (o: object) => boolean,
   mapper: (o: object) => any
 ) {
-  if (typeof object !== "object" || object === null) return object;
-  if (Array.isArray(object)) {
-    object = [...object];
-    for (let i = 0; i < object.length; i++) {
-      if (shouldMap(object[i])) {
-        object[i] = mapper(object[i]);
+  if (typeof o !== "object" || o === null) return o;
+  if (Array.isArray(o)) {
+    o = [...o];
+    for (let i = 0; i < o.length; i++) {
+      if (shouldMap(o[i])) {
+        o[i] = mapper(o[i]);
       } else {
-        object[i] = findAndReplace(object[i], shouldMap, mapper);
+        o[i] = findAndReplace(o[i], shouldMap, mapper);
       }
     }
-    return object;
+    return o;
   } else {
-    object = { ...object };
-    for (var x in object) {
-      if (shouldMap(object[x])) {
-        object[x] = mapper(object[x]);
+    o = { ...o };
+    for (var x in o) {
+      if (shouldMap(o[x])) {
+        o[x] = mapper(o[x]);
       } else {
-        object[x] = findAndReplace(object[x], shouldMap, mapper);
+        o[x] = findAndReplace(o[x], shouldMap, mapper);
       }
     }
-    return object;
+    return o;
   }
 }
