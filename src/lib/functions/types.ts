@@ -1,4 +1,4 @@
-import { Atom } from "../core/Atom";
+import { Atom } from "../core/types";
 
 export type ActionFunction = {
   (): void;
@@ -24,4 +24,15 @@ export type AsyncActionFunction = {
 
 export type Atomify<Object, Metadata = { slice: string }> = {
   [P in keyof Object]: Atom<Object[P], Metadata>;
+};
+
+export type ActionChange = {
+  from: any;
+  to: any;
+  atom: Atom<any, any>;
+};
+
+export type ActionEffect = {
+  id: string;
+  changes: ActionChange[];
 };

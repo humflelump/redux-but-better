@@ -1,8 +1,8 @@
 import createAsyncSelector_ from "async-selector";
-import { AtomOrSelector } from "../core/types";
-import { Atom } from "../core/Atom";
-import { Selector } from "../core/Selector";
+import { AtomOrSelector, Selector } from "../core/types";
 import { AsyncSelectorPromiseState } from "./types";
+import { atom } from "../core/atom";
+import { selector } from "../core/selector";
 
 export function createAsyncSelector<ReturnType, DefaultValue>(params: {
   id: string;
@@ -305,19 +305,19 @@ export function createAsyncSelector<
 export function createAsyncSelector(params) {
   const { id, func, inputs, defaultValue, throttle } = params;
 
-  const asyncSelectorAtom = new Atom({
+  const asyncSelectorAtom = atom({
     id: `__valueAtom__${id}`,
     data: undefined as any
   });
 
-  const isLoadingSelector = new Selector({
+  const isLoadingSelector = selector({
     id: `__isLoadingSelectorSelector__${id}`,
     inputs: [asyncSelectorAtom],
     func: d => {
       return d ? d.isWaiting : false;
     }
   });
-  const errorSelector = new Selector({
+  const errorSelector = selector({
     id: `__errorSelectorSelector__${id}`,
     inputs: [asyncSelectorAtom],
     func: d => (d.isRejected ? d.value : undefined)
@@ -352,7 +352,7 @@ export function createAsyncSelector(params) {
     inputs.map(d => () => d.get())
   );
 
-  const selector = new Selector({
+  const resultSelector = selector({
     id: `__asyncSelector__${id}`,
     inputs: [asyncSelectorAtom, ...inputs] as any,
     func: d => {
@@ -362,5 +362,5 @@ export function createAsyncSelector(params) {
   });
 
   const forceUpdate = () => asyncSelector.forceUpdate();
-  return [selector, isLoadingSelector, errorSelector, forceUpdate];
+  return [resultSelector, isLoadingSelector, errorSelector, forceUpdate];
 }

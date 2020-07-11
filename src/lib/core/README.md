@@ -1,0 +1,1 @@
+The code is structured weirdly for performance reasons. Originally it was done with typescript classes and inheritance, however upon being compiled in a create-react-app, it became about 25x slower. So that's why the object prototype is handled manually. Gotta chase those sweet CPU cycles.

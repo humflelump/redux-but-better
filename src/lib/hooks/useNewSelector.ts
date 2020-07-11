@@ -1,7 +1,6 @@
 import React from "react";
-import { Selector } from "../core/Selector";
 import { AtomOrSelector, ListenerListener } from "../core/types";
-import { useSelector } from "./useSelector";
+import { useValue } from "./useValue";
 
 export function useNewSelector<ReturnType>(params: {
   id?: string;
@@ -174,6 +173,6 @@ export function useNewSelector<
 }): ReturnType;
 
 export function useNewSelector(params) {
-  const selector = React.useMemo(() => new Selector(params), []);
-  return useSelector(selector);
+  const selector = React.useMemo(() => selector(params), []);
+  return useValue(selector);
 }

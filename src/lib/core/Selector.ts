@@ -1,124 +1,109 @@
-import { arraysDiff } from "../helpers/array-diff";
-import { ParentNode } from "./ParentNode";
-import { AtomOrSelector, ListenerListener } from "./types";
-export class Selector<
-  ReturnType,
-  R1 = any,
-  R2 = any,
-  R3 = any,
-  R4 = any,
-  R5 = any,
-  R6 = any,
-  R7 = any,
-  R8 = any,
-  R9 = any
-> extends ParentNode<any> {
-  cacheVal: ReturnType | null;
-  cacheInputs: any[] | null;
-  func: any;
+import { selectorMethods } from "./Selector-methods";
+import { parentMethods } from "./ParentNode-methods";
+import { AtomOrSelector, ListenerListener, Selector } from "./types";
+import { createId } from "../helpers/createId";
 
-  // prettier-ignore
-  public constructor(params: {
-    id?: string;
+const proto = { ...selectorMethods, ...parentMethods };
+
+// prettier-ignore
+export function selector<Return>(params: {
     inputs?: [];
-    func: () => ReturnType;
-    listenersChanged?: ListenerListener;
-  });
-
-  // prettier-ignore
-  public constructor(params: {
+    func: () => Return;
     id?: string;
-    inputs?: [AtomOrSelector<R1>];
-    func: (val1: R1) => ReturnType;
     listenersChanged?: ListenerListener;
-  });
+  }): Selector<Return>;
 
-  // prettier-ignore
-  public constructor(params: {
+// prettier-ignore
+export function selector<Return, R1>(params: {
+    inputs: [AtomOrSelector<R1>];
+    func: (val1: R1) => Return;
     id?: string;
-    inputs?: [AtomOrSelector<R1>, AtomOrSelector<R2>];
-    func: (val1: R1, val2: R2) => ReturnType;
     listenersChanged?: ListenerListener;
-  });
+  }): Selector<Return>;
 
-  // prettier-ignore
-  public constructor(params: {
+// prettier-ignore
+export function selector<Return, R1, R2>(params: {
+    inputs: [AtomOrSelector<R1>, AtomOrSelector<R2>];
+    func: (val1: R1, val2: R2) => Return;
     id?: string;
-    inputs?: [AtomOrSelector<R1>, AtomOrSelector<R2>, AtomOrSelector<R3>];
-    func: (val1: R1, val2: R2, val3: R3) => ReturnType;
     listenersChanged?: ListenerListener;
-  });
+  }): Selector<Return>;
 
-  // prettier-ignore
-  public constructor(params: {
+// prettier-ignore
+export function selector<Return, R1, R2, R3>(params: {
+    inputs: [AtomOrSelector<R1>, AtomOrSelector<R2>, AtomOrSelector<R3>];
+    func: (val1: R1, val2: R2, val3: R3) => Return;
     id?: string;
-    inputs?: [AtomOrSelector<R1>, AtomOrSelector<R2>, AtomOrSelector<R3>, AtomOrSelector<R4>];
-    func: (val1: R1, val2: R2, val3: R3, val4: R4) => ReturnType;
     listenersChanged?: ListenerListener;
-  });
+  }): Selector<Return>;
 
-  // prettier-ignore
-  public constructor(params: {
+// prettier-ignore
+export function selector<Return, R1, R2, R3, R4>(params: {
+    inputs: [AtomOrSelector<R1>, AtomOrSelector<R2>, AtomOrSelector<R3>, AtomOrSelector<R4>];
+    func: (val1: R1, val2: R2, val3: R3, val4: R4) => Return;
     id?: string;
-    inputs?: [AtomOrSelector<R1>, AtomOrSelector<R2>, AtomOrSelector<R3>, AtomOrSelector<R4>, AtomOrSelector<R5>];
-    func: (val1: R1, val2: R2, val3: R3, val4: R4, val5: R5) => ReturnType;
     listenersChanged?: ListenerListener;
-  });
+  }): Selector<Return>;
 
-  // prettier-ignore
-  public constructor(params: {
+// prettier-ignore
+export function selector<Return, R1, R2, R3, R4, R5>(params: {
+    inputs: [AtomOrSelector<R1>, AtomOrSelector<R2>, AtomOrSelector<R3>, AtomOrSelector<R4>, AtomOrSelector<R5>];
+    func: (val1: R1, val2: R2, val3: R3, val4: R4, val5: R5) => Return;
     id?: string;
-    inputs?: [AtomOrSelector<R1>, AtomOrSelector<R2>, AtomOrSelector<R3>, AtomOrSelector<R4>, AtomOrSelector<R5>, AtomOrSelector<R6>];
-    func: (val1: R1, val2: R2, val3: R3, val4: R4, val5: R5, val6: R6) => ReturnType;
     listenersChanged?: ListenerListener;
-  });
+  }): Selector<Return>;
 
-  // prettier-ignore
-  public constructor(params: {
+// prettier-ignore
+export function selector<Return, R1, R2, R3, R4, R5, R6>(params: {
+    inputs: [AtomOrSelector<R1>, AtomOrSelector<R2>, AtomOrSelector<R3>, AtomOrSelector<R4>, AtomOrSelector<R5>, AtomOrSelector<R6>];
+    func: (val1: R1, val2: R2, val3: R3, val4: R4, val5: R5, val6: R6) => Return;
     id?: string;
-    inputs?: [AtomOrSelector<R1>, AtomOrSelector<R2>, AtomOrSelector<R3>, AtomOrSelector<R4>, AtomOrSelector<R5>, AtomOrSelector<R6>, AtomOrSelector<R7>];
-    func: (val1: R1, val2: R2, val3: R3, val4: R4, val5: R5, val6: R6, val7: R7) => ReturnType;
     listenersChanged?: ListenerListener;
-  });
+  }): Selector<Return>;
 
-  // prettier-ignore
-  public constructor(params: {
+// prettier-ignore
+export function selector<Return, R1, R2, R3, R4, R5, R6, R7>(params: {
+    inputs: [AtomOrSelector<R1>, AtomOrSelector<R2>, AtomOrSelector<R3>, AtomOrSelector<R4>, AtomOrSelector<R5>, AtomOrSelector<R6>, AtomOrSelector<R7>];
+    func: (val1: R1, val2: R2, val3: R3, val4: R4, val5: R5, val6: R6, val7: R7) => Return;
     id?: string;
-    inputs?: [AtomOrSelector<R1>, AtomOrSelector<R2>, AtomOrSelector<R3>, AtomOrSelector<R4>, AtomOrSelector<R5>, AtomOrSelector<R6>, AtomOrSelector<R7>, AtomOrSelector<R8>];
-    func: (val1: R1, val2: R2, val3: R3, val4: R4, val5: R5, val6: R6, val7: R7, val8: R8) => ReturnType;
     listenersChanged?: ListenerListener;
-  });
+  }): Selector<Return>;
 
-  // prettier-ignore
-  public constructor(params: {
+// prettier-ignore
+export function selector<Return, R1, R2, R3, R4, R5, R6, R7, R8>(params: {
+    inputs: [AtomOrSelector<R1>, AtomOrSelector<R2>, AtomOrSelector<R3>, AtomOrSelector<R4>, AtomOrSelector<R5>, AtomOrSelector<R6>, AtomOrSelector<R7>, AtomOrSelector<R8>];
+    func: (val1: R1, val2: R2, val3: R3, val4: R4, val5: R5, val6: R6, val7: R7, val8: R8) => Return;
     id?: string;
-    inputs?: [AtomOrSelector<R1>, AtomOrSelector<R2>, AtomOrSelector<R3>, AtomOrSelector<R4>, AtomOrSelector<R5>, AtomOrSelector<R6>, AtomOrSelector<R7>, AtomOrSelector<R8>, AtomOrSelector<R9>];
-    func: (val1: R1, val2: R2, val3: R3, val4: R4, val5: R5, val6: R6, val7: R7, val8: R8, val9: R9) => ReturnType;
     listenersChanged?: ListenerListener;
-  });
+  }): Selector<Return>;
 
-  constructor(params: any) {
-    super(params);
-    this.cacheVal = null;
-    this.cacheInputs = null;
-    this.func = params.func;
+// prettier-ignore
+export function selector<Return, R1, R2, R3, R4, R5, R6, R7, R8, R9>(params: {
+    inputs: [AtomOrSelector<R1>, AtomOrSelector<R2>, AtomOrSelector<R3>, AtomOrSelector<R4>, AtomOrSelector<R5>, AtomOrSelector<R6>, AtomOrSelector<R7>, AtomOrSelector<R8>, AtomOrSelector<R9>];
+    func: (val1: R1, val2: R2, val3: R3, val4: R4, val5: R5, val6: R6, val7: R7, val8: R8, val9: R9) => Return;
+    id?: string;
+    listenersChanged?: ListenerListener;
+  }): Selector<Return>;
+
+export function selector(params) {
+  const state = {
+    data: params.data,
+    metadata: null,
+    cacheInputs: null,
+    cacheVal: null,
+    func: params.func,
+
+    id: params.id || createId(),
+    dependencies: params.inputs || [],
+    dependants: [],
+    listeners: new Set(),
+    listenersChanged: params.listenersChanged || null,
+    useCache: false,
+    __proto__: proto
+  };
+
+  for (let i = 0; i < state.dependencies.length; i++) {
+    state.dependencies[i].addDependant(state);
   }
-
-  get(): ReturnType {
-    // cache is revoked when a parent atom is set
-    if (this.useCache === true) {
-      return this.cacheVal as ReturnType;
-    }
-    const vals: ParentNode<any>[] = super
-      .getDependencies()
-      .map((d: any) => d.get());
-    if (arraysDiff(vals, this.cacheInputs)) {
-      const result = this.func(...vals);
-      this.cacheVal = result;
-      this.cacheInputs = vals;
-      return result;
-    }
-    this.useCache = true;
-    return this.cacheVal as ReturnType;
-  }
+  return state as any;
 }

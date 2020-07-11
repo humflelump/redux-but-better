@@ -1,6 +1,6 @@
-import { Atom } from "../core/Atom";
-import { Selector } from "../core/Selector";
-import { AtomOrSelector, ListenerListener, Listener } from "../core/types";
+import { AtomOrSelector, Listener, Selector } from "../core/types";
+import { atom } from "../core/atom";
+import { selector } from "../core/selector";
 
 export function createSubscription<ReturnType>(params: {
   id: string;
@@ -20,16 +20,16 @@ export function createSubscription<ReturnType>(params: {
 
 export function createSubscription(params) {
   const { id, data, inputs, onInputsChanged, onSubscriptionsChanged } = params;
-  const atom = new Atom({
+  const subAtom = atom({
     id: `__subscription_atom__${id}`,
     data
   });
 
   let inputsCache = null as any;
 
-  const setter = val => atom.set(val);
+  const setter = val => subAtom.set(val);
 
-  const selector = new Selector({
+  const subSelector = selector({
     id: `__subscription_selector__${id}`,
     inputs: [atom, ...(inputs || [])] as any,
     func: (...vals) => {
@@ -47,5 +47,5 @@ export function createSubscription(params) {
     }
   });
 
-  return [selector, setter];
+  return [subSelector, setter];
 }

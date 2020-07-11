@@ -1,40 +1,17 @@
-import { Listener, ListenerListener } from "./types";
-import { createId } from "../helpers/createId";
-
-export class ParentNode<T> {
-  private id: string;
-  public listeners: Set<Listener>;
-  public dependents: ParentNode<any>[];
-  public dependencies: ParentNode<any>[];
-  private listenersChanged: ListenerListener | null;
-  public useCache = false;
-
-  constructor(params: {
-    id?: string;
-    inputs?: ParentNode<any>[];
-    listenersChanged?: ListenerListener;
-  }) {
-    this.id = params.id || createId();
-    this.dependencies = params.inputs || [];
-    this.dependents = [];
-    this.listeners = new Set();
-    this.dependencies.forEach(input => input.addDependent(this));
-    this.listenersChanged = params.listenersChanged || null;
-  }
-
-  public revokeCache() {
+export const parentMethods = {
+  revokeCache: function() {
     if (this.useCache === false) {
       return;
     }
     this.useCache = false;
-    for (let i = 0; i < this.dependents.length; i++) {
-      this.dependents[i].revokeCache();
+    for (let i = 0; i < this.dependants.length; i++) {
+      this.dependants[i].revokeCache();
     }
-  }
+  },
 
-  public disconnect<T>(parent: ParentNode<T>) {
-    const existingListenersOnSiblings = new Set<Listener>();
-    for (const sibling of parent.dependents) {
+  disconnect: function(parent) {
+    const existingListenersOnSiblings = new Set();
+    for (const sibling of parent.dependants) {
       if (sibling === this) continue;
       for (const listener of Array.from(sibling.listeners)) {
         existingListenersOnSiblings.add(listener);
@@ -46,18 +23,18 @@ export class ParentNode<T> {
       }
     }
     this.dependencies = this.dependencies.filter(dep => dep !== parent);
-    parent.dependents = parent.dependents.filter(dep => dep !== this);
-  }
+    parent.dependants = parent.dependants.filter(dep => dep !== this);
+  },
 
-  public connect<T>(parent: ParentNode<T>) {
+  connect: function(parent) {
     for (const listener of Array.from(this.listeners)) {
       parent.addChangeListenerToParents(listener);
     }
     this.dependencies.push(parent);
-    parent.dependents.push(this);
-  }
+    parent.dependants.push(this);
+  },
 
-  public addChangeListenerToParents(listener: Listener) {
+  addChangeListenerToParents: function(listener) {
     if (this.listeners.has(listener)) {
       return;
     }
@@ -70,9 +47,9 @@ export class ParentNode<T> {
     for (let i = 0; i < this.dependencies.length; i++) {
       this.dependencies[i].addChangeListenerToParents(listener);
     }
-  }
+  },
 
-  public removeChangeListenerFromParents(listener: Listener) {
+  removeChangeListenerFromParents: function(listener) {
     if (!this.listeners.has(listener)) {
       return;
     }
@@ -85,21 +62,25 @@ export class ParentNode<T> {
     for (let i = 0; i < this.dependencies.length; i++) {
       this.dependencies[i].removeChangeListenerFromParents(listener);
     }
-  }
+  },
 
-  public getId() {
+  getId: function() {
     return this.id;
-  }
+  },
 
-  public getListeners() {
+  getListeners: function() {
     return this.listeners;
-  }
+  },
 
-  public getDependencies() {
+  getDependencies: function() {
     return this.dependencies;
-  }
+  },
 
-  private addDependent(node: ParentNode<any>) {
-    this.dependents.push(node);
+  getDependants: function() {
+    return this.dependants;
+  },
+
+  addDependant: function(node) {
+    this.dependants.push(node);
   }
-}
+};

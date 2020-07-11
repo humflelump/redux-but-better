@@ -1,54 +1,37 @@
-import { ParentNode } from "./ParentNode";
-import { Atom } from "./Atom";
-import { arraysDiff } from "../helpers/array-diff";
-import { AtomOrSelector } from "./types";
-export class DynamicSelector<ReturnType> extends ParentNode<ReturnType> {
-  cacheVal: ReturnType | null;
-  cacheInputs: any[] | null;
-  func: (get: <T>(atom: Atom<T>) => T) => ReturnType;
+import { parentMethods } from "./ParentNode-methods";
+import { dynamicSelectorMethods } from "./DynamicSelector-methods";
+import { DynamicSelector, AtomOrSelector, ListenerListener } from "./types";
+import { createId } from "../helpers/createId";
 
-  constructor(params: {
-    id?: string;
-    inputs?: AtomOrSelector<any>[];
-    func: (get: <T>(atom: Atom<T>) => T) => ReturnType;
-  }) {
-    super(params);
-    this.cacheVal = null;
-    this.cacheInputs = null;
-    this.func = params.func;
-  }
+const proto = { ...dynamicSelectorMethods, ...parentMethods };
 
-  get() {
-    if (this.useCache === true) {
-      return this.cacheVal as ReturnType;
-    }
-    const oldDependencies = super.getDependencies();
-    const vals = oldDependencies.map((d: any) => d.get());
-    if (arraysDiff(vals, this.cacheInputs)) {
-      const newDependenciesSet = new Set<ParentNode<any>>();
-      const oldDependenciesSet = new Set(oldDependencies);
-      const getter = <T>(atom: Atom<T>) => {
-        newDependenciesSet.add(atom);
-        return atom.get();
-      };
-      const result = this.func(getter);
-      this.cacheVal = result;
-      this.cacheInputs = vals;
-      // disconnect any nodes that are no longer dependencies
-      for (const old of oldDependencies) {
-        if (!newDependenciesSet.has(old)) {
-          super.disconnect(old);
-        }
-      }
-      // connect new dependencies
-      for (const newDep of Array.from(newDependenciesSet)) {
-        if (!oldDependenciesSet.has(newDep)) {
-          super.connect(newDep);
-        }
-      }
-      return result;
-    }
-    this.useCache = true;
-    return this.cacheVal as ReturnType;
+export function dynamicSelector<Return>(params: {
+  id?: string;
+  inputs?: AtomOrSelector<Return, any>;
+  func: (get: <T>(node: AtomOrSelector<T, any>) => T) => Return;
+  listenersChanged?: ListenerListener;
+}): DynamicSelector<Return>;
+
+export function dynamicSelector(params) {
+  const state = {
+    data: params.data,
+    metadata: null,
+    cacheInputs: null,
+    cacheVal: null,
+    func: params.func,
+
+    id: params.id || createId(),
+    dependencies: params.inputs || [],
+    dependants: [],
+    listeners: new Set(),
+    listenersChanged: params.listenersChanged || null,
+    useCache: false,
+
+    __proto__: proto
+  };
+
+  for (let i = 0; i < state.dependencies.length; i++) {
+    state.dependencies[i].addDependant(state);
   }
+  return state as any;
 }

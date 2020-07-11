@@ -1,47 +1,33 @@
-import { ParentNode } from "./ParentNode";
-import { store } from "../store";
-import { ListenerListener } from "./types";
+import { atomMethods } from "./Atom-methods";
+import { parentMethods } from "./ParentNode-methods";
+import { Atom, ListenerListener } from "./types";
 
-export class Atom<T, Metadata = {}> extends ParentNode<any> {
-  data: T;
-  metadata: Metadata;
+const proto = { ...atomMethods, ...parentMethods };
 
-  constructor(params: {
-    data: T;
-    id: string;
-    listenersChanged?: ListenerListener;
-    metadata?: Metadata;
-  }) {
-    super(params);
-    this.data = params.data;
-    this.metadata = ("metadata" in params ? params.metadata : {}) as Metadata;
-    store.addAtom(this);
-  }
+export function atom<Return, Metadata = null>(params: {
+  data: Return;
+  id: string;
+  metadata?: Metadata;
+  listenersChanged?: ListenerListener;
+}): Atom<Return, Metadata>;
 
-  get() {
-    this.useCache = true;
-    return this.data;
-  }
+export function atom(params) {
+  const state = {
+    data: params.data,
+    metadata: "metadata" in params ? params.metadata : null,
 
-  set(val: T, notifyListeners = true) {
-    const changed = val !== this.data;
-    const prev = this.data;
-    this.data = val;
-    super.revokeCache();
-    if (changed) {
-      store.notifyAtomChange(this, prev);
-    }
-    if (changed && notifyListeners) {
-      super.getListeners().forEach(listener => listener());
-    }
-  }
+    id: params.id,
+    dependencies: [],
+    dependants: [],
+    listeners: new Set(),
+    listenersChanged: params.listenersChanged || null,
+    useCache: false,
+    __proto__: proto
+  };
 
-  toJSON() {
-    return {
-      id: this.getId(),
-      data: this.data,
-      metadata: this.metadata,
-      type: "__atom__"
-    };
-  }
+  return state as any;
 }
+
+atom.isAtom = (obj: any) => {
+  return obj && obj.__proto__ === proto;
+};

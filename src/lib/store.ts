@@ -1,6 +1,8 @@
-import { Atom } from "./core/Atom";
 import { createId } from "./helpers/createId";
 import { findAndReplace } from "./helpers/transform-json";
+import { Atom } from "./core/types";
+import { atom } from "./core/atom";
+import { ActionEffect } from "./functions/types";
 
 type AtomSubscription = (atom: Atom<any>) => void;
 
@@ -15,7 +17,9 @@ class Store {
     removeAtom: [] as AtomSubscription[],
     removeAtomIds: [] as string[],
     atomSet: [] as ((atom: Atom<any>, prev: any) => void)[],
-    atomSetIds: [] as string[]
+    atomSetIds: [] as string[],
+    actionFired: [] as ((effect: ActionEffect) => void)[],
+    actionFiredIds: [] as string[]
   };
 
   private addSubscription(type: string, f: any) {
@@ -39,11 +43,15 @@ class Store {
     this.subscriptions.atomSet.forEach(f => f(atom, prev));
   }
 
+  public notifyActionFired(effect: ActionEffect) {
+    this.subscriptions.actionFired.forEach(f => f(effect));
+  }
+
   public toJSON() {
     const replace = obj => {
       const res = findAndReplace(
         obj,
-        o => o instanceof Atom,
+        o => atom.isAtom(o),
         (a: any) => {
           const d = a.toJSON();
           d.data = replace(d.data);
@@ -61,7 +69,7 @@ class Store {
         (o: any) => o && o.type === "__atom__",
         (a: any) => {
           if (!(a.id in this.atoms)) {
-            this.atoms[a.id] = new Atom(a);
+            this.atoms[a.id] = atom(a);
           }
           this.atoms[a.id].set(replace(a.data));
           return this.atoms[a.id];
@@ -72,12 +80,17 @@ class Store {
     return replace(json);
   }
 
+  public subscribeToActions(f: AtomSubscription) {
+    const id = this.addSubscription("actionFired", f);
+    return () => this.removeSubscription("actionFired", id);
+  }
+
   public subscribeToCreatedAtoms(f: AtomSubscription) {
     const id = this.addSubscription("addAtom", f);
     return () => this.removeSubscription("addAtom", id);
   }
 
-  public subscribeToChangedAtoms(f: (atom: Atom<any>, prev: any) => void) {
+  public subscribeToChangedAtoms(f: (atom: Atom<any, any>, prev: any) => void) {
     const id = this.addSubscription("atomSet", f);
     return () => this.removeSubscription("atomSet", id);
   }

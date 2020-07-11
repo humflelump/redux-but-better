@@ -1,8 +1,8 @@
-import { Selector } from "../core/Selector";
-import { AtomOrSelector } from "../core/types";
-import { Atom } from "../core/Atom";
+import { AtomOrSelector, Selector } from "../core/types";
 import { createId } from "../helpers/createId";
 import { AsyncActionState, AsyncActionFunction, Setter } from "./types";
+import { atom } from "../core/atom";
+import { selector } from "../core/selector";
 
 export function createAsyncAction(params: {
   id: string;
@@ -182,20 +182,20 @@ export function createAsyncAction<S1, S2, S3, R1, R2, R3>(params: {
 
 export function createAsyncAction(params) {
   const { id, inputs, atoms, func } = params;
-  const isLoadingAtom = new Atom({
+  const isLoadingAtom = atom({
     id: `__isLoadingActionAtom__${id}`,
     data: false
   });
-  const errorAtom = new Atom({
+  const errorAtom = atom({
     id: `__errorActionAtom__${id}`,
     data: undefined
   });
-  const isLoadingSelector = new Selector({
+  const isLoadingSelector = selector({
     id: `__isLoadingActionSelector__${id}`,
     inputs: [isLoadingAtom as any],
     func: d => d
   });
-  const errorSelector = new Selector({
+  const errorSelector = selector({
     id: `__errorActionSelector__${id}`,
     inputs: [errorAtom as any],
     func: d => d
