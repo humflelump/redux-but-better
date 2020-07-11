@@ -6,14 +6,14 @@ export const selectorMethods = {
     if (this.useCache === true) {
       return this.cacheVal;
     }
+    this.useCache = true;
     const vals = this.getDependencies().map(d => d.get());
     if (arraysDiff(vals, this.cacheInputs)) {
+      this.cacheInputs = vals;
       const result = this.func(...vals);
       this.cacheVal = result;
-      this.cacheInputs = vals;
       return result;
     }
-    this.useCache = true;
     return this.cacheVal;
   }
 };

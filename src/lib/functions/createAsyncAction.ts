@@ -1,216 +1,128 @@
-import { AtomOrSelector, Selector } from "../core/types";
 import { createId } from "../helpers/createId";
-import { AsyncActionState, AsyncActionFunction, Setter } from "./types";
 import { atom } from "../core/atom";
 import { selector } from "../core/selector";
+import { store } from "../store";
+import { AsyncActionState, AsyncActionFunction } from "./types";
+import { Selector } from "../core/types";
 
-export function createAsyncAction(params: {
-  id: string;
-  inputs?: [];
-  atoms?: [];
-  func: (state: AsyncActionState) => Promise<void>;
-}): [AsyncActionFunction, Selector<boolean>, Selector<any | undefined>];
+export function createAsyncAction(
+  func: (info?: AsyncActionState) => Promise<any>
+): [AsyncActionFunction, Selector<boolean>, Selector<any | undefined>];
 
-export function createAsyncAction<S1>(params: {
-  id: string;
-  inputs?: [];
-  atoms: [AtomOrSelector<S1>];
-  func: (set1: Setter<S1>, state: AsyncActionState) => Promise<void>;
-}): [AsyncActionFunction, Selector<boolean>, Selector<any | undefined>];
+export function createAsyncAction<I1>(
+  func: (val1: I1, info?: AsyncActionState) => Promise<any>
+): [AsyncActionFunction, Selector<boolean>, Selector<any | undefined>];
 
-export function createAsyncAction<S1, S2>(params: {
-  id: string;
-  inputs?: [];
-  atoms: [AtomOrSelector<S1>, AtomOrSelector<S2>];
+export function createAsyncAction<I1, I2>(
+  func: (val1: I1, val2: I2, info?: AsyncActionState) => Promise<any>
+): [AsyncActionFunction, Selector<boolean>, Selector<any | undefined>];
+
+export function createAsyncAction<I1, I2, I3>(
+  func: (val1: I1, val2: I2, val3: I3, info?: AsyncActionState) => Promise<any>
+): [AsyncActionFunction, Selector<boolean>, Selector<any | undefined>];
+
+export function createAsyncAction<I1, I2, I3, I4>(
   func: (
-    set1: Setter<S1>,
-    set2: Setter<S2>,
-    state: AsyncActionState
-  ) => Promise<void>;
-}): [AsyncActionFunction, Selector<boolean>, Selector<any | undefined>];
+    val1: I1,
+    val2: I2,
+    val3: I3,
+    val4: I4,
+    info?: AsyncActionState
+  ) => Promise<any>
+): [AsyncActionFunction, Selector<boolean>, Selector<any | undefined>];
 
-export function createAsyncAction<S1, S2, S3>(params: {
-  id: string;
-  inputs?: [];
-  atoms: [AtomOrSelector<S1>, AtomOrSelector<S2>, AtomOrSelector<S3>];
+export function createAsyncAction<I1, I2, I3, I4, I5>(
   func: (
-    set1: Setter<S1>,
-    set2: Setter<S2>,
-    set3: Setter<S3>,
-    state: AsyncActionState
-  ) => Promise<void>;
-}): [AsyncActionFunction, Selector<boolean>, Selector<any | undefined>];
+    val1: I1,
+    val2: I2,
+    val3: I3,
+    val4: I4,
+    val5: I5,
+    info?: AsyncActionState
+  ) => Promise<any>
+): [AsyncActionFunction, Selector<boolean>, Selector<any | undefined>];
 
-export function createAsyncAction<R1>(params: {
-  id: string;
-  inputs: [AtomOrSelector<R1>];
-  atoms?: [];
-  func: (val1: R1, state: AsyncActionState) => Promise<void>;
-}): [AsyncActionFunction, Selector<boolean>, Selector<any | undefined>];
-
-export function createAsyncAction<S1, R1>(params: {
-  id: string;
-  inputs: [AtomOrSelector<R1>];
-  atoms: [AtomOrSelector<S1>];
-  func: (set1: Setter<S1>, val1: R1, state: AsyncActionState) => Promise<void>;
-}): [AsyncActionFunction, Selector<boolean>, Selector<any | undefined>];
-
-export function createAsyncAction<S1, S2, R1>(params: {
-  id: string;
-  inputs: [AtomOrSelector<R1>];
-  atoms: [AtomOrSelector<S1>, AtomOrSelector<S2>];
+export function createAsyncAction<I1, I2, I3, I4, I5, I6>(
   func: (
-    set1: Setter<S1>,
-    set2: Setter<S2>,
-    val1: R1,
-    state: AsyncActionState
-  ) => Promise<void>;
-}): [AsyncActionFunction, Selector<boolean>, Selector<any | undefined>];
+    val1: I1,
+    val2: I2,
+    val3: I3,
+    val4: I4,
+    val5: I5,
+    val6: I6,
+    info?: AsyncActionState
+  ) => Promise<any>
+): [AsyncActionFunction, Selector<boolean>, Selector<any | undefined>];
 
-export function createAsyncAction<S1, S2, S3, R1>(params: {
-  id: string;
-  inputs: [AtomOrSelector<R1>];
-  atoms: [AtomOrSelector<S1>, AtomOrSelector<S2>, AtomOrSelector<S3>];
+export function createAsyncAction<I1, I2, I3, I4, I5, I6, I7>(
   func: (
-    set1: Setter<S1>,
-    set2: Setter<S2>,
-    set3: Setter<S3>,
-    val1: R1,
-    state: AsyncActionState
-  ) => Promise<void>;
-}): [AsyncActionFunction, Selector<boolean>, Selector<any | undefined>];
+    val1: I1,
+    val2: I2,
+    val3: I3,
+    val4: I4,
+    val5: I5,
+    val6: I6,
+    val7: I7,
+    info?: AsyncActionState
+  ) => Promise<any>
+): [AsyncActionFunction, Selector<boolean>, Selector<any | undefined>];
 
-export function createAsyncAction<R1, R2>(params: {
-  id: string;
-  inputs: [AtomOrSelector<R1>, AtomOrSelector<R2>];
-  atoms?: [];
-  func: (val1: R1, val2: R2, state: AsyncActionState) => Promise<void>;
-}): [AsyncActionFunction, Selector<boolean>, Selector<any | undefined>];
-
-export function createAsyncAction<S1, R1, R2>(params: {
-  id: string;
-  inputs: [AtomOrSelector<R1>, AtomOrSelector<R2>];
-  atoms: [AtomOrSelector<S1>];
+export function createAsyncAction<I1, I2, I3, I4, I5, I6, I7, I8>(
   func: (
-    set1: Setter<S1>,
-    val1: R1,
-    val2: R2,
-    state: AsyncActionState
-  ) => Promise<void>;
-}): [AsyncActionFunction, Selector<boolean>, Selector<any | undefined>];
+    val1: I1,
+    val2: I2,
+    val3: I3,
+    val4: I4,
+    val5: I5,
+    val6: I6,
+    val7: I7,
+    val8: I8,
+    info?: AsyncActionState
+  ) => Promise<any>
+): [AsyncActionFunction, Selector<boolean>, Selector<any | undefined>];
 
-export function createAsyncAction<S1, S2, R1, R2>(params: {
-  id: string;
-  inputs: [AtomOrSelector<R1>, AtomOrSelector<R2>];
-  atoms: [AtomOrSelector<S1>, AtomOrSelector<S2>];
+export function createAsyncAction<I1, I2, I3, I4, I5, I6, I7, I8, I9>(
   func: (
-    set1: Setter<S1>,
-    set2: Setter<S2>,
-    val1: R1,
-    val2: R2,
-    state: AsyncActionState
-  ) => Promise<void>;
-}): [AsyncActionFunction, Selector<boolean>, Selector<any | undefined>];
+    val1: I1,
+    val2: I2,
+    val3: I3,
+    val4: I4,
+    val5: I5,
+    val6: I6,
+    val7: I7,
+    val8: I8,
+    val9: I9,
+    info?: AsyncActionState
+  ) => Promise<any>
+): [AsyncActionFunction, Selector<boolean>, Selector<any | undefined>];
 
-export function createAsyncAction<S1, S2, S3, R1, R2>(params: {
-  id: string;
-  inputs: [AtomOrSelector<R1>, AtomOrSelector<R2>];
-  atoms: [AtomOrSelector<S1>, AtomOrSelector<S2>, AtomOrSelector<S3>];
-  func: (
-    set1: Setter<S1>,
-    set2: Setter<S2>,
-    set3: Setter<S3>,
-    val1: R1,
-    val2: R2,
-    state: AsyncActionState
-  ) => Promise<void>;
-}): [AsyncActionFunction, Selector<boolean>, Selector<any | undefined>];
-
-export function createAsyncAction<R1, R2, R3>(params: {
-  id: string;
-  inputs: [AtomOrSelector<R1>, AtomOrSelector<R2>, AtomOrSelector<R3>];
-  atoms?: [];
-  func: (
-    val1: R1,
-    val2: R2,
-    val3: R3,
-    state: AsyncActionState
-  ) => Promise<void>;
-}): [AsyncActionFunction, Selector<boolean>, Selector<any | undefined>];
-
-export function createAsyncAction<S1, R1, R2, R3>(params: {
-  id: string;
-  inputs: [AtomOrSelector<R1>, AtomOrSelector<R2>, AtomOrSelector<R3>];
-  atoms: [AtomOrSelector<S1>];
-  func: (
-    set1: Setter<S1>,
-    val1: R1,
-    val2: R2,
-    val3: R3,
-    state: AsyncActionState
-  ) => Promise<void>;
-}): [AsyncActionFunction, Selector<boolean>, Selector<any | undefined>];
-
-export function createAsyncAction<S1, S2, R1, R2, R3>(params: {
-  id: string;
-  inputs: [AtomOrSelector<R1>, AtomOrSelector<R2>, AtomOrSelector<R3>];
-  atoms: [AtomOrSelector<S1>, AtomOrSelector<S2>];
-  func: (
-    set1: Setter<S1>,
-    set2: Setter<S2>,
-    val1: R1,
-    val2: R2,
-    val3: R3,
-    state: AsyncActionState
-  ) => Promise<void>;
-}): [AsyncActionFunction, Selector<boolean>, Selector<any | undefined>];
-
-export function createAsyncAction<S1, S2, S3, R1, R2, R3>(params: {
-  id: string;
-  inputs: [AtomOrSelector<R1>, AtomOrSelector<R2>, AtomOrSelector<R3>];
-  atoms: [AtomOrSelector<S1>, AtomOrSelector<S2>, AtomOrSelector<S3>];
-  func: (
-    set1: Setter<S1>,
-    set2: Setter<S2>,
-    set3: Setter<S3>,
-    val1: R1,
-    val2: R2,
-    val3: R3,
-    state: AsyncActionState
-  ) => Promise<void>;
-}): [AsyncActionFunction, Selector<boolean>, Selector<any | undefined>];
-
-export function createAsyncAction(params) {
-  const { id, inputs, atoms, func } = params;
+export function createAsyncAction(func: (...inputs) => Promise<void>) {
+  const actionId = func.name || createId();
   const isLoadingAtom = atom({
-    id: `__isLoadingActionAtom__${id}`,
+    id: `_loadingAtom_${actionId}`,
     data: false
   });
   const errorAtom = atom({
-    id: `__errorActionAtom__${id}`,
-    data: undefined
+    id: `_error_${actionId}`,
+    data: void 0
   });
   const isLoadingSelector = selector({
-    id: `__isLoadingActionSelector__${id}`,
+    id: `__isLoadingActionSelector__${actionId}`,
     inputs: [isLoadingAtom as any],
     func: d => d
   });
   const errorSelector = selector({
-    id: `__errorActionSelector__${id}`,
+    id: `__errorActionSelector__${actionId}`,
     inputs: [errorAtom as any],
     func: d => d
   });
-  // TODO: figure out a way to batch sets
-  const setters = (atoms || []).map(atom => {
-    return val => atom.set(val, true);
-  });
   const actionStates = {};
   let mostRecentAction = null as string | null;
-  const action = () => {
+  const action = (...params) => {
     const id = createId();
+    store.notifyActionFired({ id: actionId, changes: [] });
     mostRecentAction = id;
-    actionStates[id] = { id, cancelled: false };
-    const vals = (inputs || []).map(input => input.get());
+    actionStates[id] = { id, cancelled: false, onCancel: _ => _ };
     const finish = (error: any) => {
       if (id === mostRecentAction) {
         isLoadingAtom.set(false);
@@ -220,11 +132,12 @@ export function createAsyncAction(params) {
       } else {
         errorAtom.set(undefined);
         actionStates[id].cancelled = true;
+        actionStates[id].onCancel();
       }
       delete actionStates[id];
     };
     isLoadingAtom.set(true);
-    func(...setters, ...vals, actionStates[id])
+    func(...params, actionStates[id])
       .then(() => {
         finish(undefined);
       })
@@ -233,6 +146,6 @@ export function createAsyncAction(params) {
       });
     return actionStates[id];
   };
-  action.getId = () => id;
-  return [action, isLoadingSelector, errorSelector];
+  action.getId = () => actionId;
+  return [action, isLoadingSelector, errorSelector] as any;
 }

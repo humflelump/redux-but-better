@@ -10,12 +10,14 @@ export type Setter<Input> = (val: Input) => void;
 export type AsyncSelectorPromiseState = {
   id: string;
   cancelled: boolean;
+  onCancel: () => void;
 };
 
 export type AsyncActionState = {
   id: string;
   cancelled: boolean;
-} & { [key: string]: any };
+  onCancel: () => void;
+};
 
 export type AsyncActionFunction = {
   (): AsyncActionState;

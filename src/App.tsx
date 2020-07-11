@@ -16,19 +16,21 @@
 // import { createSubscription } from "./lib/functions/createSubscription";
 // import { store } from "./lib/store";
 // import { createId } from "./lib/helpers/createId";
-import {
-  atom,
-  selector,
-  useRecoilState,
-  useRecoilValue,
-  RecoilRoot
-} from "recoil";
+// import {
+//   atom,
+//   selector,
+//   useRecoilState,
+//   useRecoilValue,
+//   RecoilRoot
+// } from "recoil";
 import React from "react";
-//import { atom } from "./lib/core/atom";
+import { atom } from "./lib/core/atom";
 import { useAtom } from "./lib/hooks/useAtom";
-//import { selector } from "./lib/core/selector";
-import { useValue } from "./lib/hooks/useValue";
+import { selector } from "./lib/core/selector";
+import { useValues } from "./lib/hooks/useValues";
 import { AtomOrSelector } from "./lib/core/types";
+import { createThrottledSelector } from "./lib/functions/createThrottledSelector";
+import { debounce } from "lodash";
 
 function getCount() {
   const str = window.location.href;
@@ -46,43 +48,64 @@ var ar = len => {
 };
 
 const a = atom({
-  key: "wowow",
-  default: 1
+  id: "wowowo",
+  data: 1
 });
 
-let t = Date.now();
-let s = a;
-for (let i = 0; i < 1000; i++) {
-  const sel = selector({
-    key: String(i),
-    get: ({ get }) => get(s) + 1
-  });
-  s = sel as any;
-}
-console.log("init took", Date.now() - t);
-
-const SelectorBenchmark = React.memo(() => {
-  const [val, setVal] = useRecoilState(a);
-  return (
-    <div
-      onClick={() => {
-        let t = Date.now();
-        setVal(val + 1);
-        console.log("update took", Date.now() - t);
-      }}
-    >
-      val: {val}
-    </div>
-  );
+const plusone = createThrottledSelector({
+  inputs: [a],
+  func: num => {
+    console.log("called", num);
+    return num + 1;
+  },
+  throttle: f => debounce(f, 1000)
 });
 
-export default () => {
-  return (
-    <RecoilRoot>
-      <SelectorBenchmark />
-    </RecoilRoot>
-  );
-};
+const Throttled = React.memo(() => {
+  const [val] = useValues([plusone]);
+  console.log("rendered");
+  return <div onClick={() => a.set(a.get() + 1)}>val: {val}</div>;
+});
+export default Throttled;
+
+// const a = atom({
+//   key: "wowow",
+//   default: 1
+// });
+
+// let t = Date.now();
+// let s = a;
+// for (let i = 0; i < 1000; i++) {
+//   const sel = selector({
+//     key: String(i),
+//     get: ({ get }) => get(s) + 1
+//   });
+//   s = sel as any;
+// }
+// console.log("init took", Date.now() - t);
+
+// const SelectorBenchmark = React.memo(() => {
+//   const [val, setVal] = useRecoilState(a);
+//   return (
+//     <div
+//       onClick={() => {
+//         let t = Date.now();
+//         setVal(val + 1);
+//         console.log("update took", Date.now() - t);
+//       }}
+//     >
+//       val: {val}
+//     </div>
+//   );
+// });
+
+// export default () => {
+//   return (
+//     <RecoilRoot>
+//       <SelectorBenchmark />
+//     </RecoilRoot>
+//   );
+// };
 
 // const a = atom({
 //   id: "wowow",

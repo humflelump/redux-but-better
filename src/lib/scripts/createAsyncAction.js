@@ -17,18 +17,16 @@ var ma = (a, b) => {
 };
 
 // prettier-ignore
-function genType(inputs, atoms) {
+function genType(inputs) {
       return `
-  export function createAsyncAction${inputs + atoms > 0 ? '<' : ''}${ar(atoms).map(i => `S${i}`).join(', ')}${atoms > 0 ? ', ' : ''}${ar(inputs).map(i => `R${i}`).join(', ')}${inputs + atoms > 0 ? '>' : ''}(params: {
-      id: string;
-      inputs${inputs === 0 ? '?' : ''}: [${ar(inputs).map(i => `AtomOrSelector<R${i}>`).join(', ')}];
-      atoms${atoms === 0 ? '?' : ''}: [${ar(atoms).map(i => `AtomOrSelector<S${i}>`).join(', ')}];
-      func: (${ar(atoms).map(i => `set${i}: Setter<S${i}>`).join(', ')}${atoms > 0 ? ', ' : ''}${ar(inputs).map(i => `val${i}: R${i}`).join(', ')}${inputs > 0 ? ', ' : ''}state: AsyncActionState) => Promise<void>;
-  }): [AsyncActionFunction, Selector<boolean>, Selector<any | undefined>];    
+export function createAsyncAction${inputs > 0 ? '<' : ''}${ar(inputs).map(i => `I${i}`).join(', ')}${inputs > 0 ? '>' : ''}(func: (${ar(inputs).map(i => `val${i}: I${i}`).join(', ')}${inputs > 0 ? ', ' : ''}info?: AsyncActionState) => Promise<any>): [
+  AsyncActionFunction,
+  Selector<boolean>,
+  Selector<any | undefined>,
+]; 
   `
   }
 
-var res = ma(4, 4).map(a => genType(a[0], a[1])).join(`
-  
-  `);
+var res = ar(10).map((d, i) => genType(i)).join(`
+`);
 console.log(res);
