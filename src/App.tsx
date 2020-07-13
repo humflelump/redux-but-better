@@ -25,12 +25,12 @@
 // } from "recoil";
 import React from "react";
 import { atom } from "./lib/core/atom";
-import { useAtom } from "./lib/hooks/useAtom";
 import { selector } from "./lib/core/selector";
 import { useValues } from "./lib/hooks/useValues";
 import { AtomOrSelector } from "./lib/core/types";
 import { createThrottledSelector } from "./lib/functions/createThrottledSelector";
 import { debounce } from "lodash";
+import { useCell } from "./lib/hooks/useCell";
 
 function getCount() {
   const str = window.location.href;
@@ -62,9 +62,9 @@ const plusone = createThrottledSelector({
 });
 
 const Throttled = React.memo(() => {
-  const [val] = useValues([plusone]);
-  console.log("rendered");
-  return <div onClick={() => a.set(a.get() + 1)}>val: {val}</div>;
+  const [val] = useValues([plusone], "Throttled");
+
+  return <div onClick={() => a.update(n => n + 1)}>val: {val}</div>;
 });
 export default Throttled;
 

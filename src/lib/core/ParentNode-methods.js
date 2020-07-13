@@ -34,7 +34,7 @@ export const parentMethods = {
     parent.dependants.push(this);
   },
 
-  addChangeListenerToParents: function(listener) {
+  subscribe: function(listener) {
     if (this.listeners.has(listener)) {
       return;
     }
@@ -45,11 +45,11 @@ export const parentMethods = {
       this.listenersChanged(newListeners, oldListeners);
     }
     for (let i = 0; i < this.dependencies.length; i++) {
-      this.dependencies[i].addChangeListenerToParents(listener);
+      this.dependencies[i].subscribe(listener);
     }
   },
 
-  removeChangeListenerFromParents: function(listener) {
+  unsubscribe: function(listener) {
     if (!this.listeners.has(listener)) {
       return;
     }
@@ -60,7 +60,7 @@ export const parentMethods = {
       this.listenersChanged(newListeners, oldListeners);
     }
     for (let i = 0; i < this.dependencies.length; i++) {
-      this.dependencies[i].removeChangeListenerFromParents(listener);
+      this.dependencies[i].unsubscribe(listener);
     }
   },
 

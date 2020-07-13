@@ -5,12 +5,16 @@ export const atomMethods = {
     this.useCache = true;
     return this.data;
   },
+  update: function(func, notifyListeners = true) {
+    const newVal = func(this.get());
+    this.set(newVal, notifyListeners);
+  },
   set: function(val, notifyListeners = true) {
     const changed = val !== this.data;
     const prev = this.data;
     this.data = val;
-    this.revokeCache();
     if (changed) {
+      this.revokeCache();
       store.notifyAtomChange(this, prev);
     }
     if (changed && notifyListeners) {

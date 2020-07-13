@@ -9,7 +9,7 @@ var ar = len => {
 // prettier-ignore
 function genType(inputs) {
       return `
-export function useValues<${ar(inputs).map(i => `R${i}`).join(', ')}>(selectors: [${ar(inputs).map(i => `AtomOrSelector<R${i}>`).join(', ')}]): [${ar(inputs).map(i => `R${i}`).join(', ')}] 
+export function useValues<${ar(inputs).map(i => `R${i}`).join(', ')}${inputs > 0 ? ', ' : ''}Data = undefined>(selectors: [${ar(inputs).map(i => `AtomOrSelector<R${i}>`).join(', ')}], data?: Data): [${ar(inputs).map(i => `R${i}`).join(', ')}] 
   `
   }
 

@@ -1,22 +1,26 @@
-export type Listener = () => void;
+export type Listener<T = undefined> = {
+  (): void;
+  data: T;
+};
 
 export type ListenerListener = (
-  newListeners: Listener[],
-  prevListeners: Listener[]
+  newListeners: Listener<any>[],
+  prevListeners: Listener<any>[]
 ) => void;
 
 export type ParentType = {
   getId: () => string;
-  getListeners: () => Listener[];
+  getListeners: () => Listener<any>[];
   getDependencies: () => AtomOrSelector<any>;
   getDependants: () => AtomOrSelector<any>;
-  addChangeListenerToParents: (l: Listener) => void;
-  removeChangeListenerFromParents: (l: Listener) => void;
+  subscribe: (l: Listener<any>) => void;
+  unsubscribe: (l: Listener<any>) => void;
 };
 
 export type Atom<T, M = null> = {
   get: () => T;
-  set: (val: T) => void;
+  update(func: (val: T) => T, notify?: boolean);
+  set: (val: T, notify?: boolean) => void;
   toJSON: () => { id: string; data: T; metadata: M; type: string };
   getMetadata: () => M;
 } & ParentType;
