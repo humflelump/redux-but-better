@@ -110,7 +110,7 @@ console.log(mySlice.atom2.getMetadata()); // { initial: "Hello, World", persist:
 
 ### Actions
 
-You may be tempted to put all the logic for updating atoms inside the components. The problem is sometimes you will have to pass in atoms into the component that it don't actually need to render. This in turn causes over-rendering. Additionally it would be nice to place collections of atoms set events into one action for dev-tool and documentation purposes.
+You may be tempted to put all the logic for updating atoms inside the components. The problem is sometimes you will have to pass in atoms into the component that it doesn't actually need to render. This in turn causes over-rendering. Additionally it would be nice to place collections of atoms set events into one action for dev-tool and documentation purposes.
 
 ```js
 import { atom, createAction, store } from "redux-but-better";
